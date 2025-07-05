@@ -1,0 +1,25 @@
+### creation 
+
+# POST http://localhost:4400/signup HTTP/1.1
+# content-type: application/json
+
+# {
+#     "nom": "fari",
+#     "prenom": "fari",
+#     "telephone": "45",
+#     "email": "farifari@gmail.com",
+#     "password": "aaaaa"
+# }
+
+
+# POST http://localhost:4400/userlogin HTTP/1.1
+# content-type: application/json
+
+# {
+# "email": "farifari@gmail.com",
+# "password": "aaaaa"
+# }
+
+GET http://localhost:4400/api/Utilisateur/?token=eyJhbGciOiJIUzI1NiJ9.W3siaWQiOjAsIm5vbSI6IkRhbnkiLCJwcmVub20iOiJBbmRlcnNvbiIsInRlbGVwaG9uZSI6IjQ1IiwiZW1haWwiOiJkYW55YW5kZXJzb24yMjIyQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJEVvWktoaS9iTWgxbzRQQmxSRGQ4a2U4U1BaaGdVLkZDbmdtZllIMmhKQ3Njd3pQZEg2eWdDIiwidXNlcmFjdGl2ZSI6MSwiZGF0ZU1BSiI6IjIwMjUtMDMtMjdUMTE6MzQ6MTYuMDAwWiJ9XQ.p7lFEcxWsiGbseJmvudlDKxiUvYKXqxEeeCA5J-_Mz8 HTTP/1.1
+content-type: application/json
+

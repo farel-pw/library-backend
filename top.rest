@@ -1,0 +1,10 @@
+
+POST http://localhost:4400/signup HTTP/1.1
+content-type: application/json
+{
+    "nom": "fari",
+    "prenom": "fari",
+    "telephone": "45",
+    "email": "farifari@gmail.com",
+    "password": "aaaaa"
+}
