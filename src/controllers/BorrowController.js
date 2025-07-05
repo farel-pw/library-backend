@@ -32,6 +32,22 @@ class BorrowController {
     }
   }
 
+  static async getMyBorrows(req, res) {
+    try {
+      // Utiliser l'ID de l'utilisateur connecté depuis le token
+      const result = await BorrowService.getBorrowsByUser(req.user.id);
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des emprunts de l\'utilisateur connecté:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
   static async getBorrowsByUserNotReturned(req, res) {
     try {
       const { id } = req.params;
@@ -66,7 +82,18 @@ class BorrowController {
 
   static async createBorrow(req, res) {
     try {
-      const result = await BorrowService.createBorrow(req.body);
+      // Calculer la date de retour prévue (14 jours par défaut)
+      const dateRetourPrevue = new Date();
+      dateRetourPrevue.setDate(dateRetourPrevue.getDate() + 14);
+      
+      // Utiliser l'ID de l'utilisateur connecté depuis le token
+      const borrowData = {
+        ...req.body,
+        utilisateur_id: req.user.id,
+        date_retour_prevue: req.body.date_retour_prevue || dateRetourPrevue
+      };
+      
+      const result = await BorrowService.createBorrow(borrowData);
       
       if (result.error) {
         return res.status(400).json(result);
