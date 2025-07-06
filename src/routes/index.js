@@ -5,6 +5,8 @@ const bookRoutes = require('./books');
 const borrowRoutes = require('./borrows');
 const reservationRoutes = require('./reservations');
 const commentRoutes = require('./comments');
+const analyticsRoutes = require('./analytics');
+const notificationRoutes = require('./notifications');
 
 const router = express.Router();
 
@@ -15,5 +17,7 @@ router.use('/livres', bookRoutes);
 router.use('/emprunts', borrowRoutes);
 router.use('/reservations', reservationRoutes);
 router.use('/commentaires', commentRoutes);
+router.use('/analytics', analyticsRoutes);
+router.use('/notifications', notificationRoutes);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const Reservation = require('../models/Reservation');
+const NotificationManagerService = require('./NotificationManagerService');
 
 class ReservationService {
   static async getReservationsByBook(bookId) {
@@ -106,6 +107,98 @@ class ReservationService {
     } catch (error) {
       console.error('Erreur lors de la promotion de la file d\'attente:', error);
       return { error: true, message: "Error promoting queue" };
+    }
+  }
+
+  static async getAllReservations() {
+    try {
+      console.log("📚 ReservationService: Starting getAllReservations");
+      const reservations = await Reservation.findAll();
+      console.log("📚 ReservationService: Reservations retrieved successfully, count:", reservations.length);
+      return { error: false, data: reservations };
+    } catch (error) {
+      console.error('📚 ReservationService Error:', error);
+      console.error('📚 ReservationService Error Stack:', error.stack);
+      return { error: true, message: "Error fetching reservations" };
+    }
+  }
+
+  static async getAllReservationsWithDetails() {
+    try {
+      console.log("📚 ReservationService: Starting getAllReservationsWithDetails");
+      const reservations = await Reservation.findAllWithDetails();
+      console.log("📚 ReservationService: Reservations with details retrieved successfully, count:", reservations.length);
+      return { error: false, data: reservations };
+    } catch (error) {
+      console.error('📚 ReservationService Error:', error);
+      console.error('📚 ReservationService Error Stack:', error.stack);
+      return { error: true, message: "Error fetching reservations with details" };
+    }
+  }
+
+  static async updateReservation(id, updateData) {
+    try {
+      const result = await Reservation.update(id, updateData);
+      if (result.affectedRows === 0) {
+        return { error: true, message: "Réservation non trouvée" };
+      }
+      return { error: false, message: "Réservation mise à jour avec succès" };
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la réservation:', error);
+      return { error: true, message: "Error updating reservation" };
+    }
+  }
+
+  static async approveReservation(id) {
+    try {
+      // D'abord récupérer les détails de la réservation
+      const reservations = await Reservation.findAllWithDetails();
+      const reservation = reservations.find(r => r.id === parseInt(id));
+      
+      if (!reservation) {
+        return { error: true, message: "Réservation non trouvée" };
+      }
+
+      // Mettre à jour le statut
+      const result = await Reservation.updateStatus(id, 'validée');
+      if (result.affectedRows === 0) {
+        return { error: true, message: "Réservation non trouvée" };
+      }
+
+      // Envoyer la notification à l'utilisateur
+      try {
+        await NotificationManagerService.notifyReservationApproved(
+          id, 
+          reservation.utilisateur_id, 
+          reservation.livre_id
+        );
+        console.log(`📧 Notification envoyée pour la réservation ${id}`);
+      } catch (notificationError) {
+        console.error('❌ Erreur envoi notification réservation:', notificationError);
+        // Ne pas faire échouer l'approbation si la notification échoue
+      }
+
+      return { error: false, message: "Réservation approuvée avec succès" };
+    } catch (error) {
+      console.error('Erreur lors de l\'approbation de la réservation:', error);
+      return { error: true, message: "Error approving reservation" };
+    }
+  }
+
+  static async rejectReservation(id, reason) {
+    try {
+      const updateData = {
+        statut: 'rejetée',
+        notes_admin: reason || 'Réservation rejetée par l\'administrateur'
+      };
+      const result = await Reservation.update(id, updateData);
+      if (result.affectedRows === 0) {
+        return { error: true, message: "Réservation non trouvée" };
+      }
+      return { error: false, message: "Réservation rejetée avec succès" };
+    } catch (error) {
+      console.error('Erreur lors du rejet de la réservation:', error);
+      return { error: true, message: "Error rejecting reservation" };
     }
   }
 }

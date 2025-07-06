@@ -101,6 +101,113 @@ class CommentService {
       return { error: true, message: "Error fetching user comments" };
     }
   }
+
+  static async getAllComments() {
+    try {
+      console.log("📚 CommentService: Starting getAllComments");
+      const comments = await Comment.findAll();
+      console.log("📚 CommentService: Comments retrieved successfully, count:", comments.length);
+      return { error: false, data: comments };
+    } catch (error) {
+      console.error('📚 CommentService Error:', error);
+      console.error('📚 CommentService Error Stack:', error.stack);
+      return { error: true, message: "Error fetching comments" };
+    }
+  }
+
+  static async getAllCommentsWithDetails() {
+    try {
+      console.log("📚 CommentService: Starting getAllCommentsWithDetails");
+      const comments = await Comment.findAllWithDetails();
+      console.log("📚 CommentService: Comments with details retrieved successfully, count:", comments.length);
+      return { error: false, data: comments };
+    } catch (error) {
+      console.error('📚 CommentService Error:', error);
+      console.error('📚 CommentService Error Stack:', error.stack);
+      return { error: true, message: "Error fetching comments with details" };
+    }
+  }
+
+  static async getCommentsStats() {
+    try {
+      const stats = await Comment.getStats();
+      return { error: false, data: stats };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques:', error);
+      return { error: true, message: "Error fetching comments stats" };
+    }
+  }
+
+  static async getCommentsForModeration() {
+    try {
+      const comments = await Comment.findForModeration();
+      return { error: false, data: comments };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des commentaires à modérer:', error);
+      return { error: true, message: "Error fetching comments for moderation" };
+    }
+  }
+
+  static async updateComment(id, updateData) {
+    try {
+      const result = await Comment.update(id, updateData);
+      if (result.affectedRows === 0) {
+        return { error: true, message: "Commentaire non trouvé" };
+      }
+      return { error: false, message: "Commentaire mis à jour avec succès" };
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du commentaire:', error);
+      return { error: true, message: "Error updating comment" };
+    }
+  }
+
+  static async approveComment(id) {
+    try {
+      const updateData = {
+        statut: 'approuve',
+        date_moderation: new Date()
+      };
+      const result = await Comment.update(id, updateData);
+      if (result.affectedRows === 0) {
+        return { error: true, message: "Commentaire non trouvé" };
+      }
+      return { error: false, message: "Commentaire approuvé avec succès" };
+    } catch (error) {
+      console.error('Erreur lors de l\'approbation du commentaire:', error);
+      return { error: true, message: "Error approving comment" };
+    }
+  }
+
+  static async rejectComment(id, reason) {
+    try {
+      const updateData = {
+        statut: 'rejete',
+        date_moderation: new Date(),
+        notes_moderation: reason || 'Commentaire rejeté par l\'administrateur'
+      };
+      const result = await Comment.update(id, updateData);
+      if (result.affectedRows === 0) {
+        return { error: true, message: "Commentaire non trouvé" };
+      }
+      return { error: false, message: "Commentaire rejeté avec succès" };
+    } catch (error) {
+      console.error('Erreur lors du rejet du commentaire:', error);
+      return { error: true, message: "Error rejecting comment" };
+    }
+  }
+
+  static async adminDeleteComment(id) {
+    try {
+      const result = await Comment.adminDelete(id);
+      if (result.affectedRows === 0) {
+        return { error: true, message: "Commentaire non trouvé" };
+      }
+      return { error: false, message: "Commentaire supprimé avec succès (admin)" };
+    } catch (error) {
+      console.error('Erreur lors de la suppression du commentaire (admin):', error);
+      return { error: true, message: "Error deleting comment (admin)" };
+    }
+  }
 }
 
 module.exports = CommentService;

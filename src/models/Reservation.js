@@ -140,6 +140,106 @@ class Reservation {
       });
     });
   }
+
+  static async findAll() {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT r.*, u.nom, u.prenom, u.email, l.titre, l.auteur, l.isbn
+        FROM reservations r
+        JOIN utilisateurs u ON r.utilisateur_id = u.id
+        JOIN livres l ON r.livre_id = l.id
+        ORDER BY r.date_reservation DESC
+      `;
+      
+      connection.query(query, (err, rows) => {
+        if (err) {
+          console.error("❌ Reservations SQL Error:", err);
+          reject(err);
+        } else {
+          console.log("✅ Reservations SQL Result:", rows.length, "reservations found");
+          // Transformer les données pour correspondre au format attendu par le frontend
+          const transformedReservations = rows.map(reservation => ({
+            id: reservation.id,
+            utilisateur_id: reservation.utilisateur_id,
+            livre_id: reservation.livre_id,
+            utilisateur: {
+              nom: reservation.nom,
+              prenom: reservation.prenom,
+              email: reservation.email
+            },
+            livre: {
+              titre: reservation.titre,
+              auteur: reservation.auteur,
+              isbn: reservation.isbn
+            },
+            date_reservation: reservation.date_reservation,
+            statut: reservation.statut,
+            notes_admin: reservation.notes_admin,
+            date_expiration: reservation.date_expiration
+          }));
+          resolve(transformedReservations);
+        }
+      });
+    });
+  }
+
+  static async findAllWithDetails() {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT r.*, 
+               u.nom, u.prenom, u.email, 
+               l.titre, l.auteur, l.isbn,
+               (SELECT COUNT(*) FROM reservations r2 
+                WHERE r2.livre_id = r.livre_id 
+                AND r2.statut = 'en_attente' 
+                AND r2.date_reservation < r.date_reservation) + 1 as position
+        FROM reservations r
+        JOIN utilisateurs u ON r.utilisateur_id = u.id
+        JOIN livres l ON r.livre_id = l.id
+        ORDER BY r.date_reservation DESC
+      `;
+      
+      connection.query(query, (err, rows) => {
+        if (err) {
+          console.error("❌ Reservations with details SQL Error:", err);
+          reject(err);
+        } else {
+          console.log("✅ Reservations with details SQL Result:", rows.length, "reservations found");
+          const transformedReservations = rows.map(reservation => ({
+            id: reservation.id,
+            utilisateur_id: reservation.utilisateur_id,
+            livre_id: reservation.livre_id,
+            utilisateur: {
+              nom: reservation.nom,
+              prenom: reservation.prenom,
+              email: reservation.email
+            },
+            livre: {
+              titre: reservation.titre,
+              auteur: reservation.auteur,
+              isbn: reservation.isbn
+            },
+            date_reservation: reservation.date_reservation,
+            statut: reservation.statut,
+            notes_admin: reservation.notes_admin,
+            date_expiration: reservation.date_expiration,
+            position: reservation.position
+          }));
+          resolve(transformedReservations);
+        }
+      });
+    });
+  }
+
+  static async update(id, updateData) {
+    return new Promise((resolve, reject) => {
+      const query = "UPDATE reservations SET ? WHERE id = ?";
+      connection.query(query, [updateData, id], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  }
 }
 
 module.exports = Reservation;

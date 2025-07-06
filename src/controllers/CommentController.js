@@ -133,6 +133,136 @@ class CommentController {
       res.status(500).json({ error: true, message: "Erreur interne du serveur" });
     }
   }
+
+  static async getAllComments(req, res) {
+    try {
+      console.log("🎯 CommentController: getAllComments called");
+      const result = await CommentService.getAllComments();
+      console.log("🎯 CommentController: Service result:", result.error ? 'ERROR' : 'SUCCESS');
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      console.log("🎯 CommentController: Returning success response with", result.data?.length || 0, "comments");
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('🎯 CommentController Error:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async getAllCommentsWithDetails(req, res) {
+    try {
+      console.log("🎯 CommentController: getAllCommentsWithDetails called");
+      const result = await CommentService.getAllCommentsWithDetails();
+      console.log("🎯 CommentController: Service result:", result.error ? 'ERROR' : 'SUCCESS');
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('🎯 CommentController Error:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async getCommentsStats(req, res) {
+    try {
+      const result = await CommentService.getCommentsStats();
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async getCommentsForModeration(req, res) {
+    try {
+      const result = await CommentService.getCommentsForModeration();
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des commentaires à modérer:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async updateComment(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await CommentService.updateComment(id, req.body);
+      
+      if (result.error) {
+        return res.status(404).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du commentaire:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async approveComment(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await CommentService.approveComment(id);
+      
+      if (result.error) {
+        return res.status(404).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de l\'approbation du commentaire:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async rejectComment(req, res) {
+    try {
+      const { id } = req.params;
+      const { reason } = req.body;
+      const result = await CommentService.rejectComment(id, reason);
+      
+      if (result.error) {
+        return res.status(404).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors du rejet du commentaire:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async adminDeleteComment(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await CommentService.adminDeleteComment(id);
+      
+      if (result.error) {
+        return res.status(404).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la suppression du commentaire (admin):', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
 }
 
 module.exports = CommentController;
