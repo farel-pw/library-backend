@@ -91,6 +91,16 @@ class CommentService {
       return { error: true, message: "Error fetching bibliotheque stats" };
     }
   }
+
+  static async getCommentsByUser(userId) {
+    try {
+      const comments = await Comment.findByUserId(userId);
+      return { error: false, data: comments };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des commentaires par utilisateur:', error);
+      return { error: true, message: "Error fetching user comments" };
+    }
+  }
 }
 
 module.exports = CommentService;

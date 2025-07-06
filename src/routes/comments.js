@@ -12,6 +12,7 @@ router.get('/bibliotheque/stats', CommentController.getBibliothequeStats);
 // Routes protégées
 router.use(verifyToken);
 
+router.get('/user', CommentController.getMyComments);
 router.post('/', CommentController.createComment);
 router.post('/bibliotheque', CommentController.createBibliothequeComment);
 router.put('/note', CommentController.updateNote);

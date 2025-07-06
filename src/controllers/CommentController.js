@@ -118,6 +118,21 @@ class CommentController {
       res.status(500).json({ error: true, message: "Erreur interne du serveur" });
     }
   }
+
+  static async getMyComments(req, res) {
+    try {
+      const result = await CommentService.getCommentsByUser(req.user.id);
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des commentaires de l\'utilisateur:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
 }
 
 module.exports = CommentController;

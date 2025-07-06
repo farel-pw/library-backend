@@ -105,6 +105,23 @@ class Comment {
       });
     });
   }
+
+  static async findByUserId(userId) {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT c.*, l.titre, l.auteur, l.isbn
+        FROM commentaires c
+        JOIN livres l ON c.livre_id = l.id
+        WHERE c.utilisateur_id = ?
+        ORDER BY c.date_commentaire DESC
+      `;
+      
+      connection.query(query, [userId], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+  }
 }
 
 module.exports = Comment;
