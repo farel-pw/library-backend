@@ -1,26 +1,70 @@
+/**
+ * Modèle Analytics - Requêtes SQL pour les statistiques et métriques
+ * 
+ * Ce modèle centralise toutes les requêtes SQL complexes pour générer :
+ * - Les statistiques du tableau de bord administrateur
+ * - Les analyses par période (livres, utilisateurs, emprunts)
+ * - Les métriques de performance et d'utilisation
+ * - Les rapports détaillés pour les administrateurs
+ * 
+ * Chaque méthode encapsule une ou plusieurs requêtes SQL optimisées
+ * pour récupérer les données nécessaires aux analyses.
+ * 
+ * @author Votre Nom
+ * @version 1.0.0
+ */
+
 const mysql = require('mysql2');
 const connection = require('../config/database');
 
 class Analytics {
+  /**
+   * Récupère les statistiques principales pour le tableau de bord
+   * 
+   * Cette requête complexe agrège toutes les métriques essentielles :
+   * - Compteurs de base (livres, utilisateurs, emprunts)
+   * - Indicateurs d'activité (emprunts actifs, en retard)
+   * - Métriques de performance (notes moyennes, réservations)
+   * - Statistiques de notifications
+   * 
+   * @returns {Promise<Object>} Objet contenant toutes les statistiques du dashboard
+   */
   static async getDashboardStats() {
     return new Promise((resolve, reject) => {
+      console.log("📊 Analytics: Exécution de la requête dashboard stats...");
+      
       const query = `
         SELECT 
+          -- 📚 Statistiques des livres
           (SELECT COUNT(*) FROM livres) as total_livres,
           (SELECT COUNT(*) FROM livres WHERE disponible = 1) as livres_disponibles,
+          
+          -- 👥 Statistiques des utilisateurs
           (SELECT COUNT(*) FROM utilisateurs WHERE role = 'etudiant') as total_utilisateurs,
           (SELECT COUNT(*) FROM utilisateurs WHERE role = 'etudiant' AND useractive = 1) as utilisateurs_actifs,
-          (SELECT COUNT(*) FROM utilisateurs WHERE role = 'etudiant' AND date_creation >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as nouveaux_utilisateurs,
+          (SELECT COUNT(*) FROM utilisateurs 
+           WHERE role = 'etudiant' AND date_creation >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as nouveaux_utilisateurs,
+          
+          -- 📅 Statistiques des emprunts
           (SELECT COUNT(*) FROM emprunts) as total_emprunts,
           (SELECT COUNT(*) FROM emprunts WHERE rendu = FALSE) as emprunts_actifs,
-          (SELECT COUNT(*) FROM emprunts WHERE rendu = FALSE AND date_retour_prevue < CURDATE()) as emprunts_en_retard,
-          (SELECT COUNT(*) FROM emprunts WHERE date_emprunt >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as emprunts_semaine,
+          (SELECT COUNT(*) FROM emprunts 
+           WHERE rendu = FALSE AND date_retour_prevue < CURDATE()) as emprunts_en_retard,
+          (SELECT COUNT(*) FROM emprunts 
+           WHERE date_emprunt >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as emprunts_semaine,
+          
+          -- 🔖 Statistiques des réservations
           (SELECT COUNT(*) FROM reservations) as total_reservations,
           (SELECT COUNT(*) FROM reservations WHERE statut = 'en_attente') as reservations_en_attente,
           (SELECT COUNT(*) FROM reservations WHERE statut = 'validée') as reservations_pretes,
+          
+          -- 💬 Statistiques des commentaires
           (SELECT COUNT(*) FROM commentaires) as total_commentaires,
-          (SELECT COUNT(*) FROM commentaires WHERE date_publication >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as commentaires_semaine,
+          (SELECT COUNT(*) FROM commentaires 
+           WHERE date_creation >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as commentaires_semaine,
           (SELECT ROUND(AVG(note), 2) FROM commentaires WHERE note IS NOT NULL) as note_moyenne_generale,
+          
+          -- 🔔 Statistiques des notifications
           (SELECT COUNT(*) FROM notifications) as total_notifications,
           (SELECT COUNT(*) FROM notifications WHERE lu = FALSE) as notifications_non_lues,
           (SELECT COUNT(*) FROM notifications WHERE type = 'emprunt_retard') as notifications_retard,
@@ -29,18 +73,33 @@ class Analytics {
       
       connection.query(query, (err, rows) => {
         if (err) {
-          console.error("❌ Dashboard Stats SQL Error:", err);
+          console.error("❌ Analytics: Erreur SQL dashboard stats:", err);
           reject(err);
         } else {
-          console.log("✅ Dashboard Stats SQL Result:", rows[0]);
+          console.log("✅ Analytics: Dashboard stats récupérées avec succès");
+          console.log("📊 Données:", rows[0]);
           resolve(rows[0]);
         }
       });
     });
   }
 
+  /**
+   * Analyse les données des livres par genre et popularité
+   * 
+   * Génère des statistiques détaillées sur :
+   * - Répartition des livres par genre
+   * - Nombre d'emprunts par genre
+   * - Notes moyennes par genre
+   * - Popularité des différentes catégories
+   * 
+   * @param {string} period - Période d'analyse en jours (30, 90, 365, etc.)
+   * @returns {Promise<Array>} Tableau des analyses par genre
+   */
   static async getBooksAnalytics(period) {
     return new Promise((resolve, reject) => {
+      console.log(`📚 Analytics: Analyse des livres pour la période: ${period} jours`);
+      
       const query = `
         SELECT 
           l.genre,

@@ -9,7 +9,7 @@ class Comment {
         FROM commentaires c
         JOIN utilisateurs u ON c.utilisateur_id = u.id
         WHERE c.livre_id = ?
-        ORDER BY c.date_publication DESC
+        ORDER BY c.date_commentaire DESC
       `;
       
       connection.query(query, [bookId], (err, rows) => {

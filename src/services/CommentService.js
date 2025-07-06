@@ -13,6 +13,9 @@ class CommentService {
 
   static async createComment(commentData) {
     try {
+      console.log('🔍 DEBUG CommentService.createComment:');
+      console.log('commentData reçu:', commentData);
+      
       const newComment = {
         utilisateur_id: commentData.utilisateur_id,
         livre_id: commentData.livre_id,
@@ -20,11 +23,14 @@ class CommentService {
         note: commentData.note || null,
         date_commentaire: new Date()
       };
+      
+      console.log('📝 Nouveau commentaire formaté:', newComment);
 
       const result = await Comment.create(newComment);
+      console.log('📊 Résultat DB:', result);
       return { error: false, message: "Commentaire créé avec succès", id: result.insertId };
     } catch (error) {
-      console.error('Erreur lors de la création du commentaire:', error);
+      console.error('❌ Erreur lors de la création du commentaire:', error);
       return { error: true, message: "Error creating comment" };
     }
   }

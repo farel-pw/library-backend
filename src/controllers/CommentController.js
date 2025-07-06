@@ -19,13 +19,27 @@ class CommentController {
 
   static async createComment(req, res) {
     try {
+      console.log('🔍 DEBUG createComment:');
+      console.log('req.user:', req.user);
+      console.log('req.body:', req.body);
+      
+      // Vérifier que l'utilisateur est authentifié
+      if (!req.user || !req.user.id) {
+        console.log('❌ Utilisateur non authentifié');
+        return res.status(401).json({ error: true, message: "Utilisateur non authentifié" });
+      }
+      
       // Ajouter l'ID de l'utilisateur connecté
       const commentData = {
         ...req.body,
         utilisateur_id: req.user.id
       };
       
+      console.log('📝 Données du commentaire:', commentData);
+      
       const result = await CommentService.createComment(commentData);
+      
+      console.log('📊 Résultat service:', result);
       
       if (result.error) {
         return res.status(400).json(result);

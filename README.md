@@ -1,33 +1,44 @@
-# API Backend - Bibliothèque
+# 🚀 API Backend - Système de Gestion de Bibliothèque
 
-## Structure du Projet
+## 📋 Vue d'Ensemble
+
+L'API Backend est construite avec **Node.js** et **Express.js**, utilisant **MySQL** comme base de données. Elle fournit tous les services nécessaires pour la gestion complète d'une bibliothèque moderne.
+
+## 🏗️ Architecture Technique
+
+### Structure du Projet
 
 ```
 Backend 2/
-├── src/
-│   ├── config/           # Configuration (base de données, JWT, etc.)
-│   │   ├── index.js      # Configuration générale
-│   │   └── database.js   # Configuration base de données
-│   ├── controllers/      # Contrôleurs pour gérer les requêtes
-│   │   ├── AuthController.js
-│   │   ├── UserController.js
-│   │   ├── BookController.js
-│   │   ├── BorrowController.js
-│   │   ├── ReservationController.js
-│   │   └── CommentController.js
-│   ├── middleware/       # Middleware personnalisés
-│   │   ├── auth.js       # Authentification JWT
-│   │   ├── admin.js      # Vérification rôle admin
-│   │   └── validation.js # Validation des données
-│   ├── models/          # Modèles de données
-│   │   ├── User.js
-│   │   ├── Book.js
-│   │   ├── Borrow.js
-│   │   ├── Reservation.js
-│   │   └── Comment.js
-│   ├── routes/          # Définition des routes
-│   │   ├── auth.js
-│   │   ├── users.js
+├── src/                     # Code source principal
+│   ├── server.js           # Point d'entrée du serveur
+│   ├── config/             # Configuration de l'application
+│   │   ├── index.js        # Configuration générale
+│   │   └── database.js     # Configuration base de données
+│   ├── controllers/        # Contrôleurs pour gérer les requêtes HTTP
+│   │   ├── AuthController.js        # Authentification et autorisation
+│   │   ├── UserController.js        # Gestion des utilisateurs
+│   │   ├── BookController.js        # Gestion du catalogue de livres
+│   │   ├── BorrowController.js      # Gestion des emprunts
+│   │   ├── ReservationController.js # Gestion des réservations
+│   │   ├── CommentController.js     # Gestion des commentaires/avis
+│   │   ├── AnalyticsController.js   # Statistiques et métriques
+│   │   └── NotificationController.js # Système de notifications
+│   ├── middleware/         # Middleware personnalisés
+│   │   ├── auth.js         # Authentification JWT
+│   │   └── errorHandler.js # Gestion globale des erreurs
+│   ├── models/            # Modèles de données et requêtes SQL
+│   │   ├── User.js         # Modèle utilisateur
+│   │   ├── Book.js         # Modèle livre
+│   │   ├── Borrow.js       # Modèle emprunt
+│   │   ├── Reservation.js  # Modèle réservation
+│   │   ├── Comment.js      # Modèle commentaire
+│   │   ├── Analytics.js    # Modèle analytics
+│   │   └── Notification.js # Modèle notification
+│   ├── routes/            # Définition des routes API
+│   │   ├── index.js        # Router principal
+│   │   ├── auth.js         # Routes d'authentification
+│   │   ├── users.js        # Routes utilisateurs
 │   │   ├── books.js
 │   │   ├── borrows.js
 │   │   ├── reservations.js
