@@ -5,7 +5,7 @@ class Comment {
   static async findByBookId(bookId) {
     return new Promise((resolve, reject) => {
       const query = `
-        SELECT c.*, u.nom, u.prenom 
+        SELECT c.*, u.nom as utilisateur_nom, u.prenom as utilisateur_prenom 
         FROM commentaires c
         JOIN utilisateurs u ON c.utilisateur_id = u.id
         WHERE c.livre_id = ?
@@ -54,6 +54,54 @@ class Comment {
       connection.query(formattedQuery, (err, result) => {
         if (err) reject(err);
         else resolve(result);
+      });
+    });
+  }
+
+  static async findBibliothequeComments() {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT bc.*, u.nom as utilisateur_nom, u.prenom as utilisateur_prenom 
+        FROM bibliotheque_commentaires bc
+        JOIN utilisateurs u ON bc.utilisateur_id = u.id
+        ORDER BY bc.date_commentaire DESC
+      `;
+      
+      connection.query(query, (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+  }
+
+  static async createBibliothequeComment(commentData) {
+    return new Promise((resolve, reject) => {
+      const query = "INSERT INTO ?? SET ?";
+      const table = ["bibliotheque_commentaires"];
+      const formattedQuery = mysql.format(query, table);
+      
+      connection.query(formattedQuery, commentData, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  }
+
+  static async getBibliothequeStats() {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT 
+          COUNT(*) as total_commentaires,
+          AVG(note) as note_moyenne,
+          COUNT(CASE WHEN note >= 4 THEN 1 END) as notes_positives,
+          COUNT(CASE WHEN note <= 2 THEN 1 END) as notes_negatives
+        FROM bibliotheque_commentaires 
+        WHERE note IS NOT NULL
+      `;
+      
+      connection.query(query, (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows[0]);
       });
     });
   }

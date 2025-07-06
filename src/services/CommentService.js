@@ -54,6 +54,43 @@ class CommentService {
       return { error: true, message: "Error deleting comment" };
     }
   }
+
+  static async getBibliothequeComments() {
+    try {
+      const comments = await Comment.findBibliothequeComments();
+      return { error: false, data: comments };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des commentaires de la bibliothèque:', error);
+      return { error: true, message: "Error fetching bibliotheque comments" };
+    }
+  }
+
+  static async createBibliothequeComment(commentData) {
+    try {
+      const newComment = {
+        utilisateur_id: commentData.utilisateur_id,
+        commentaire: commentData.commentaire,
+        note: commentData.note || null,
+        date_commentaire: new Date()
+      };
+
+      const result = await Comment.createBibliothequeComment(newComment);
+      return { error: false, message: "Commentaire sur la bibliothèque créé avec succès", id: result.insertId };
+    } catch (error) {
+      console.error('Erreur lors de la création du commentaire sur la bibliothèque:', error);
+      return { error: true, message: "Error creating bibliotheque comment" };
+    }
+  }
+
+  static async getBibliothequeStats() {
+    try {
+      const stats = await Comment.getBibliothequeStats();
+      return { error: false, data: stats };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques de la bibliothèque:', error);
+      return { error: true, message: "Error fetching bibliotheque stats" };
+    }
+  }
 }
 
 module.exports = CommentService;
