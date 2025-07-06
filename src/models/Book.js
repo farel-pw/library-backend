@@ -4,11 +4,21 @@ const connection = require('../config/database');
 class Book {
   static async findAll() {
     return new Promise((resolve, reject) => {
-      const query = "SELECT * FROM ??";
-      const table = ["livres"];
-      const formattedQuery = mysql.format(query, table);
+      const query = `
+        SELECT 
+          l.*,
+          CASE 
+            WHEN EXISTS (
+              SELECT 1 FROM emprunts e 
+              WHERE e.livre_id = l.id 
+              AND e.date_retour_effective IS NULL
+            ) THEN 0
+            ELSE 1
+          END as disponible
+        FROM livres l
+      `;
       
-      connection.query(formattedQuery, (err, rows) => {
+      connection.query(query, (err, rows) => {
         if (err) reject(err);
         else resolve(rows);
       });

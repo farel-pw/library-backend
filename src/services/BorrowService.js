@@ -66,10 +66,21 @@ class BorrowService {
 
   static async returnBook(borrowId) {
     try {
+      // D'abord, récupérer les informations de l'emprunt
+      const borrowInfo = await Borrow.findById(borrowId);
+      if (!borrowInfo) {
+        return { error: true, message: "Emprunt non trouvé" };
+      }
+
       const result = await Borrow.returnBook(borrowId);
       if (result.affectedRows === 0) {
         return { error: true, message: "Emprunt non trouvé" };
       }
+
+      // Après le retour, vérifier s'il y a des réservations en attente pour ce livre
+      const ReservationService = require('./ReservationService');
+      await ReservationService.promoteNextInQueue(borrowInfo.livre_id);
+
       return { error: false, message: "Livre retourné avec succès" };
     } catch (error) {
       console.error('Erreur lors du retour du livre:', error);

@@ -40,7 +40,18 @@ class ReservationController {
 
   static async createReservation(req, res) {
     try {
-      const result = await ReservationService.createReservation(req.body);
+      const { livre_id } = req.body;
+      
+      if (!livre_id) {
+        return res.status(400).json({ error: true, message: "ID du livre requis" });
+      }
+
+      const reservationData = {
+        utilisateur_id: req.user.id,
+        livre_id: livre_id
+      };
+
+      const result = await ReservationService.createReservation(reservationData);
       
       if (result.error) {
         return res.status(400).json(result);
@@ -65,6 +76,21 @@ class ReservationController {
       res.status(200).json(result);
     } catch (error) {
       console.error('Erreur lors de la suppression de la réservation:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async getMyReservations(req, res) {
+    try {
+      const result = await ReservationService.getReservationsByUser(req.user.id);
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des réservations de l\'utilisateur connecté:', error);
       res.status(500).json({ error: true, message: "Erreur interne du serveur" });
     }
   }

@@ -109,6 +109,22 @@ class Borrow {
       });
     });
   }
+
+  static async findById(id) {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT e.*, l.titre, l.auteur 
+        FROM emprunts e
+        JOIN livres l ON e.livre_id = l.id
+        WHERE e.id = ?
+      `;
+      
+      connection.query(query, [id], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows.length > 0 ? rows[0] : null);
+      });
+    });
+  }
 }
 
 module.exports = Borrow;

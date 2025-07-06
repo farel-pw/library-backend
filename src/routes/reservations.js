@@ -7,6 +7,7 @@ const router = express.Router();
 // Toutes les routes nécessitent une authentification
 router.use(verifyToken);
 
+router.get('/', ReservationController.getMyReservations);
 router.get('/livre', ReservationController.getReservationsByBook);
 router.get('/utilisateur/:id', ReservationController.getReservationsByUser);
 router.post('/', ReservationController.createReservation);
