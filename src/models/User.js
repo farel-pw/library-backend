@@ -56,26 +56,43 @@ class User {
 
   static async update(id, userData) {
     return new Promise((resolve, reject) => {
-      const query = "UPDATE ?? SET ? WHERE ?? = ?";
-      const table = ["utilisateurs", "id", id];
+      const query = "UPDATE ?? SET ? WHERE id = ?";
+      const table = ["utilisateurs"];
       const formattedQuery = mysql.format(query, table);
       
-      connection.query(formattedQuery, userData, (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
+      console.log("🔄 Update Query:", formattedQuery);
+      console.log("🔄 Update Data:", userData);
+      console.log("🔄 Update ID:", id);
+      
+      connection.query(formattedQuery, [userData, id], (err, result) => {
+        if (err) {
+          console.error("❌ Update Error:", err);
+          reject(err);
+        } else {
+          console.log("✅ Update Result:", result);
+          resolve(result);
+        }
       });
     });
   }
 
   static async delete(id) {
     return new Promise((resolve, reject) => {
-      const query = "DELETE FROM ?? WHERE ?? = ?";
-      const table = ["utilisateurs", "id", id];
+      const query = "DELETE FROM ?? WHERE id = ?";
+      const table = ["utilisateurs"];
       const formattedQuery = mysql.format(query, table);
       
-      connection.query(formattedQuery, (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
+      console.log("🗑️ Delete Query:", formattedQuery);
+      console.log("🗑️ Delete ID:", id);
+      
+      connection.query(formattedQuery, [id], (err, result) => {
+        if (err) {
+          console.error("❌ Delete Error:", err);
+          reject(err);
+        } else {
+          console.log("✅ Delete Result:", result);
+          resolve(result);
+        }
       });
     });
   }

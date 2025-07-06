@@ -10,12 +10,20 @@ router.get('/est-emprunte/:id', BorrowController.isBookBorrowed);
 // Routes protégées
 router.use(verifyToken);
 
+// Routes utilisateur
 router.get('/', BorrowController.getMyBorrows);
-router.get('/details', BorrowController.getAllBorrowsWithDetails);
+router.post('/', BorrowController.createBorrow);
+router.put('/retour/:id', BorrowController.returnBook);
+
+// Routes admin (nécessitent des privilèges admin)
+router.get('/all', verifyAdmin, BorrowController.getAllBorrows);
+router.get('/details', verifyAdmin, BorrowController.getAllBorrowsWithDetails);
 router.get('/utilisateur/:id', BorrowController.getBorrowsByUser);
 router.get('/utilisateur/:id/non-rendus', BorrowController.getBorrowsByUserNotReturned);
 router.get('/rendus', BorrowController.getReturnedBorrows);
-router.post('/', BorrowController.createBorrow);
-router.put('/retour/:id', BorrowController.returnBook);
+router.get('/:id', BorrowController.getBorrowById);
+router.put('/:id', verifyAdmin, BorrowController.updateBorrow);
+router.put('/:id/return', verifyAdmin, BorrowController.adminReturnBook);
+router.put('/:id/extend', verifyAdmin, BorrowController.extendBorrow);
 
 module.exports = router;

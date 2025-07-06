@@ -10,8 +10,8 @@ const seeder = {
 
     await connection.execute(`
       INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role) VALUES
-      ('Admin', 'Système', 'admin@bibliotheque.com', ?, 'admin'),
-      ('Dupont', 'Jean', 'jean.dupont@example.com', ?, 'etudiant'),
+      ('Admin', 'Système', '', ?, 'admin'),
+      ('Dupont', 'Jean', 'jean.dadmin@bibliotheque.comupont@example.com', ?, 'etudiant'),
       ('Martin', 'Marie', 'marie.martin@example.com', ?, 'etudiant'),
       ('Bernard', 'Pierre', 'pierre.bernard@example.com', ?, 'etudiant'),
       ('Thomas', 'Sophie', 'sophie.thomas@example.com', ?, 'etudiant')

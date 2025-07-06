@@ -52,6 +52,30 @@ class UserService {
       return { error: true, message: "Error deleting user" };
     }
   }
+
+  static async createUser(userData) {
+    try {
+      const result = await User.create(userData);
+      return { error: false, message: "User created successfully", data: result };
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
+      return { error: true, message: "Error creating user" };
+    }
+  }
+
+  static async toggleUserStatus(id, active) {
+    try {
+      const statut = active ? 'actif' : 'suspendu';
+      const result = await User.update(id, { statut });
+      if (result.affectedRows === 0) {
+        return { error: true, message: "User not found" };
+      }
+      return { error: false, message: `User status updated to ${statut}` };
+    } catch (error) {
+      console.error('Erreur lors du changement de statut:', error);
+      return { error: true, message: "Error updating user status" };
+    }
+  }
 }
 
 module.exports = UserService;

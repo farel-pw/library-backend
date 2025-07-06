@@ -10,7 +10,7 @@ router.get('/:id', BookController.getBookById);
 
 // Routes protégées (admin uniquement)
 router.post('/', verifyToken, verifyAdmin, BookController.createBook);
-router.put('/', verifyToken, verifyAdmin, BookController.updateBook);
+router.put('/:id', verifyToken, verifyAdmin, BookController.updateBook);
 router.delete('/:id', verifyToken, verifyAdmin, BookController.deleteBook);
 
 module.exports = router;

@@ -3,15 +3,20 @@ const BookService = require('../services/BookService');
 class BookController {
   static async getAllBooks(req, res) {
     try {
+      console.log("🎯 BookController: getAllBooks called");
       const result = await BookService.getAllBooks();
+      console.log("🎯 BookController: Service result:", result.error ? 'ERROR' : 'SUCCESS');
       
       if (result.error) {
+        console.log("🎯 BookController: Returning error response");
         return res.status(500).json(result);
       }
       
+      console.log("🎯 BookController: Returning success response with", result.data?.length || 0, "books");
       res.status(200).json(result);
     } catch (error) {
-      console.error('Erreur lors de la récupération des livres:', error);
+      console.error('🎯 BookController Error:', error);
+      console.error('🎯 BookController Error Stack:', error.stack);
       res.status(500).json({ error: true, message: "Erreur interne du serveur" });
     }
   }
@@ -49,7 +54,8 @@ class BookController {
 
   static async updateBook(req, res) {
     try {
-      const result = await BookService.updateBook(req.body);
+      const { id } = req.params;
+      const result = await BookService.updateBook(id, req.body);
       
       if (result.error) {
         return res.status(404).json(result);

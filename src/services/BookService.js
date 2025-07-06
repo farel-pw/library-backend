@@ -3,10 +3,13 @@ const Book = require('../models/Book');
 class BookService {
   static async getAllBooks() {
     try {
+      console.log("📚 BookService: Starting getAllBooks");
       const books = await Book.findAll();
+      console.log("📚 BookService: Books retrieved successfully, count:", books.length);
       return { error: false, data: books };
     } catch (error) {
-      console.error('Erreur lors de la récupération des livres:', error);
+      console.error('📚 BookService Error:', error);
+      console.error('📚 BookService Error Stack:', error.stack);
       return { error: true, message: "Error fetching books" };
     }
   }
@@ -51,10 +54,9 @@ class BookService {
     }
   }
 
-  static async updateBook(bookData) {
+  static async updateBook(id, bookData) {
     try {
-      const { id, ...updateData } = bookData;
-      const result = await Book.update(id, updateData);
+      const result = await Book.update(id, bookData);
       
       if (result.affectedRows === 0) {
         return { error: true, message: "Book not found" };

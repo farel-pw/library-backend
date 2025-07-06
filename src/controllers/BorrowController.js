@@ -136,6 +136,86 @@ class BorrowController {
       res.status(500).json({ error: true, message: "Erreur interne du serveur" });
     }
   }
+
+  static async getAllBorrows(req, res) {
+    try {
+      const result = await BorrowService.getAllBorrows();
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la récupération de tous les emprunts:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async getBorrowById(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await BorrowService.getBorrowById(id);
+      
+      if (result.error) {
+        return res.status(404).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'emprunt:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async updateBorrow(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await BorrowService.updateBorrow(id, req.body);
+      
+      if (result.error) {
+        return res.status(404).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'emprunt:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async adminReturnBook(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await BorrowService.adminReturnBook(id, req.body);
+      
+      if (result.error) {
+        return res.status(404).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors du retour du livre (admin):', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async extendBorrow(req, res) {
+    try {
+      const { id } = req.params;
+      const { newDate } = req.body;
+      const result = await BorrowService.extendBorrow(id, newDate);
+      
+      if (result.error) {
+        return res.status(404).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de l\'extension de l\'emprunt:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
 }
 
 module.exports = BorrowController;
