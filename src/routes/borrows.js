@@ -13,7 +13,11 @@ router.use(verifyToken);
 // Routes utilisateur
 router.get('/', BorrowController.getMyBorrows);
 router.post('/', BorrowController.createBorrow);
+router.post('/reserver', BorrowController.createReservation);
 router.put('/retour/:id', BorrowController.returnBook);
+
+// Route pour mettre à jour les statuts
+router.post('/update-statuses', BorrowController.updateBorrowStatuses);
 
 // Routes admin (nécessitent des privilèges admin)
 router.get('/all', verifyAdmin, BorrowController.getAllBorrows);

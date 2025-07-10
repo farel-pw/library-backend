@@ -40,16 +40,16 @@ class Analytics {
           (SELECT COUNT(*) FROM livres WHERE disponible = 1) as livres_disponibles,
           
           -- 👥 Statistiques des utilisateurs
-          (SELECT COUNT(*) FROM utilisateurs WHERE role = 'etudiant') as total_utilisateurs,
-          (SELECT COUNT(*) FROM utilisateurs WHERE role = 'etudiant' AND useractive = 1) as utilisateurs_actifs,
+          (SELECT COUNT(*) FROM utilisateurs WHERE role != 'admin') as total_utilisateurs,
+          (SELECT COUNT(*) FROM utilisateurs WHERE role != 'admin') as utilisateurs_actifs,
           (SELECT COUNT(*) FROM utilisateurs 
-           WHERE role = 'etudiant' AND date_creation >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as nouveaux_utilisateurs,
+           WHERE role != 'admin' AND date_creation >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as nouveaux_utilisateurs,
           
           -- 📅 Statistiques des emprunts
           (SELECT COUNT(*) FROM emprunts) as total_emprunts,
-          (SELECT COUNT(*) FROM emprunts WHERE rendu = FALSE) as emprunts_actifs,
+          (SELECT COUNT(*) FROM emprunts WHERE date_retour_effective IS NULL) as emprunts_actifs,
           (SELECT COUNT(*) FROM emprunts 
-           WHERE rendu = FALSE AND date_retour_prevue < CURDATE()) as emprunts_en_retard,
+           WHERE date_retour_effective IS NULL AND date_retour_prevue < CURDATE()) as emprunts_en_retard,
           (SELECT COUNT(*) FROM emprunts 
            WHERE date_emprunt >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as emprunts_semaine,
           
@@ -61,7 +61,7 @@ class Analytics {
           -- 💬 Statistiques des commentaires
           (SELECT COUNT(*) FROM commentaires) as total_commentaires,
           (SELECT COUNT(*) FROM commentaires 
-           WHERE date_creation >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as commentaires_semaine,
+           WHERE date_commentaire >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as commentaires_semaine,
           (SELECT ROUND(AVG(note), 2) FROM commentaires WHERE note IS NOT NULL) as note_moyenne_generale,
           
           -- 🔔 Statistiques des notifications

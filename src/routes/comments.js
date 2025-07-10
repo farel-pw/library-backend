@@ -5,6 +5,7 @@ const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 // Routes publiques
+router.get('/', CommentController.getAllCommentsWithDetails); // Route publique pour lister tous les commentaires
 router.get('/livre/:id', CommentController.getCommentsByBook);
 router.get('/bibliotheque', CommentController.getBibliothequeComments);
 router.get('/bibliotheque/stats', CommentController.getBibliothequeStats);

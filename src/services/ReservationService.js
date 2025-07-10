@@ -72,6 +72,75 @@ class ReservationService {
     }
   }
 
+  static async createReservationFromUnavailableBook(reservationData) {
+    try {
+      // Vérifier si l'utilisateur a déjà une réservation active pour ce livre
+      const existingReservation = await new Promise((resolve, reject) => {
+        const query = `
+          SELECT COUNT(*) as count 
+          FROM reservations 
+          WHERE utilisateur_id = ? AND livre_id = ? AND statut = 'active'
+        `;
+        
+        const connection = require('../config/database');
+        connection.query(query, [reservationData.utilisateur_id, reservationData.livre_id], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows[0].count > 0);
+        });
+      });
+
+      if (existingReservation) {
+        return { error: true, message: "Vous avez déjà une réservation active pour ce livre" };
+      }
+
+      // Vérifier si l'utilisateur a déjà emprunté ce livre
+      const Borrow = require('../models/Borrow');
+      const hasActiveBorrow = await new Promise((resolve, reject) => {
+        const query = `
+          SELECT COUNT(*) as count 
+          FROM emprunts 
+          WHERE utilisateur_id = ? AND livre_id = ? AND date_retour_effective IS NULL
+        `;
+        
+        const connection = require('../config/database');
+        connection.query(query, [reservationData.utilisateur_id, reservationData.livre_id], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows[0].count > 0);
+        });
+      });
+
+      if (hasActiveBorrow) {
+        return { error: true, message: "Vous avez déjà emprunté ce livre" };
+      }
+
+      // Créer la réservation
+      const newReservation = {
+        utilisateur_id: reservationData.utilisateur_id,
+        livre_id: reservationData.livre_id,
+        date_reservation: new Date(),
+        statut: 'active',
+        priorite: 'normale'
+      };
+
+      const result = await Reservation.create(newReservation);
+      
+      // Calculer la position dans la file d'attente
+      const position = await Reservation.getPositionInQueue(reservationData.livre_id, result.insertId);
+      
+      console.log(`📋 Réservation créée - Livre ${reservationData.livre_id}: Position ${position} dans la file d'attente`);
+      
+      return { 
+        error: false, 
+        message: "Réservation créée avec succès", 
+        id: result.insertId,
+        position: position
+      };
+    } catch (error) {
+      console.error('Erreur lors de la création de la réservation:', error);
+      return { error: true, message: "Error creating reservation" };
+    }
+  }
+
   static async deleteReservation(id) {
     try {
       const result = await Reservation.delete(id);

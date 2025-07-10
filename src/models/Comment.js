@@ -21,13 +21,23 @@ class Comment {
 
   static async create(commentData) {
     return new Promise((resolve, reject) => {
-      const query = "INSERT INTO ?? SET ?";
-      const table = ["commentaires"];
-      const formattedQuery = mysql.format(query, table);
+      const query = "INSERT INTO commentaires (utilisateur_id, livre_id, commentaire, note, date_commentaire) VALUES (?, ?, ?, ?, ?)";
+      const values = [
+        commentData.utilisateur_id,
+        commentData.livre_id,
+        commentData.commentaire,
+        commentData.note,
+        commentData.date_commentaire
+      ];
       
-      connection.query(formattedQuery, commentData, (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
+      connection.query(query, values, (err, result) => {
+        if (err) {
+          console.error('❌ Erreur SQL lors de la création du commentaire:', err);
+          reject(err);
+        } else {
+          console.log('✅ Commentaire créé avec succès:', result);
+          resolve(result);
+        }
       });
     });
   }
@@ -76,13 +86,22 @@ class Comment {
 
   static async createBibliothequeComment(commentData) {
     return new Promise((resolve, reject) => {
-      const query = "INSERT INTO ?? SET ?";
-      const table = ["bibliotheque_commentaires"];
-      const formattedQuery = mysql.format(query, table);
+      const query = "INSERT INTO bibliotheque_commentaires (utilisateur_id, commentaire, note, date_commentaire) VALUES (?, ?, ?, ?)";
+      const values = [
+        commentData.utilisateur_id,
+        commentData.commentaire,
+        commentData.note,
+        commentData.date_commentaire
+      ];
       
-      connection.query(formattedQuery, commentData, (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
+      connection.query(query, values, (err, result) => {
+        if (err) {
+          console.error('❌ Erreur SQL lors de la création du commentaire bibliothèque:', err);
+          reject(err);
+        } else {
+          console.log('✅ Commentaire bibliothèque créé avec succès:', result);
+          resolve(result);
+        }
       });
     });
   }
@@ -113,7 +132,7 @@ class Comment {
         FROM commentaires c
         JOIN livres l ON c.livre_id = l.id
         WHERE c.utilisateur_id = ?
-        ORDER BY c.date_publication DESC
+        ORDER BY c.date_commentaire DESC
       `;
       
       connection.query(query, [userId], (err, rows) => {
@@ -130,7 +149,7 @@ class Comment {
         FROM commentaires c
         JOIN utilisateurs u ON c.utilisateur_id = u.id
         JOIN livres l ON c.livre_id = l.id
-        ORDER BY c.date_publication DESC
+        ORDER BY c.date_commentaire DESC
       `;
       
       connection.query(query, (err, rows) => {
@@ -156,7 +175,7 @@ class Comment {
             },
             commentaire: comment.commentaire,
             note: comment.note,
-            date_commentaire: comment.date_publication,
+            date_commentaire: comment.date_commentaire,
             statut: comment.statut || 'en_attente',
             date_moderation: comment.date_moderation,
             notes_moderation: comment.notes_moderation
@@ -178,7 +197,7 @@ class Comment {
         FROM commentaires c
         JOIN utilisateurs u ON c.utilisateur_id = u.id
         JOIN livres l ON c.livre_id = l.id
-        ORDER BY c.date_publication DESC
+        ORDER BY c.date_commentaire DESC
       `;
       
       connection.query(query, (err, rows) => {
@@ -205,7 +224,7 @@ class Comment {
             },
             commentaire: comment.commentaire,
             note: comment.note,
-            date_commentaire: comment.date_publication,
+            date_commentaire: comment.date_commentaire,
             statut: comment.statut || 'en_attente',
             date_moderation: comment.date_moderation,
             notes_moderation: comment.notes_moderation
@@ -223,9 +242,9 @@ class Comment {
           COUNT(*) as total_commentaires,
           COUNT(CASE WHEN note IS NOT NULL THEN 1 END) as total_notes,
           AVG(note) as note_moyenne_generale,
-          COUNT(CASE WHEN DATE(date_publication) = CURDATE() THEN 1 END) as commentaires_aujourd_hui,
-          COUNT(CASE WHEN date_publication >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as commentaires_semaine,
-          COUNT(CASE WHEN date_publication >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as commentaires_mois,
+          COUNT(CASE WHEN DATE(date_commentaire) = CURDATE() THEN 1 END) as commentaires_aujourd_hui,
+          COUNT(CASE WHEN date_commentaire >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as commentaires_semaine,
+          COUNT(CASE WHEN date_commentaire >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as commentaires_mois,
           COUNT(CASE WHEN statut = 'en_attente' THEN 1 END) as en_attente_moderation,
           COUNT(CASE WHEN statut = 'approuve' THEN 1 END) as approuves,
           COUNT(CASE WHEN statut = 'rejete' THEN 1 END) as rejetes
@@ -247,7 +266,7 @@ class Comment {
         JOIN utilisateurs u ON c.utilisateur_id = u.id
         JOIN livres l ON c.livre_id = l.id
         WHERE c.statut = 'en_attente' OR c.statut IS NULL
-        ORDER BY c.date_publication DESC
+        ORDER BY c.date_commentaire DESC
       `;
       
       connection.query(query, (err, rows) => {
@@ -268,7 +287,7 @@ class Comment {
             },
             commentaire: comment.commentaire,
             note: comment.note,
-            date_commentaire: comment.date_publication,
+            date_commentaire: comment.date_commentaire,
             statut: comment.statut || 'en_attente'
           }));
           resolve(transformedComments);

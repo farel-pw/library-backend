@@ -9,9 +9,12 @@ router.use(verifyToken);
 
 // Routes utilisateurs
 router.get('/profile', UserController.getCurrentUser);
+router.put('/profile', UserController.updateCurrentUser);
 router.get('/', verifyAdmin, UserController.getAllUsers);
 router.get('/:id', UserController.getUserById);
-router.put('/', UserController.updateUser);
+router.post('/', verifyAdmin, UserController.createUser);
+router.put('/:id', verifyAdmin, UserController.updateUser);
+router.patch('/:id/status', verifyAdmin, UserController.toggleUserStatus);
 router.delete('/:id', verifyAdmin, UserController.deleteUser);
 
 module.exports = router;

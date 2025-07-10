@@ -10,7 +10,7 @@ module.exports = {
     port: parseInt(process.env.DB_PORT) || 3306
   },
   server: {
-    port: process.env.PORT || 4001
+    port: process.env.PORT || 4401
   },
   environment: process.env.NODE_ENV || 'development'
 };

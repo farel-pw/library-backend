@@ -56,7 +56,25 @@ class BookService {
 
   static async updateBook(id, bookData) {
     try {
-      const result = await Book.update(id, bookData);
+      // Filtrer les champs autorisés pour éviter les erreurs SQL
+      const allowedFields = [
+        'titre', 'auteur', 'genre', 'isbn', 'annee_publication', 
+        'image_url', 'description', 'disponible'
+      ];
+      
+      const filteredData = {};
+      Object.keys(bookData).forEach(key => {
+        if (allowedFields.includes(key)) {
+          filteredData[key] = bookData[key];
+        } else {
+          console.log(`⚠️ Champ ignoré: ${key} = ${bookData[key]}`);
+        }
+      });
+
+      console.log('📖 Données d\'origine:', bookData);
+      console.log('📖 Données filtrées pour la mise à jour:', filteredData);
+      
+      const result = await Book.update(id, filteredData);
       
       if (result.affectedRows === 0) {
         return { error: true, message: "Book not found" };
@@ -65,6 +83,7 @@ class BookService {
       return { error: false, message: "Livre mis à jour avec succès" };
     } catch (error) {
       console.error('Erreur lors de la mise à jour du livre:', error);
+      console.error('Stack trace:', error.stack);
       return { error: true, message: "Error updating book" };
     }
   }

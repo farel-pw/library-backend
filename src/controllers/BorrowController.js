@@ -216,6 +216,61 @@ class BorrowController {
       res.status(500).json({ error: true, message: "Erreur interne du serveur" });
     }
   }
+
+  static async getBookAvailability(req, res) {
+    try {
+      const { id } = req.params;
+      const availability = await Borrow.getBookAvailability(id);
+      
+      if (!availability) {
+        return res.status(404).json({ error: true, message: "Livre non trouvé" });
+      }
+      
+      res.status(200).json({ 
+        error: false, 
+        data: availability 
+      });
+    } catch (error) {
+      console.error('Erreur lors de la vérification de la disponibilité:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async createReservation(req, res) {
+    try {
+      const ReservationService = require('../services/ReservationService');
+      const reservationData = {
+        utilisateur_id: req.user.id,
+        livre_id: req.body.livre_id
+      };
+
+      const result = await ReservationService.createReservationFromUnavailableBook(reservationData);
+      
+      if (result.error) {
+        return res.status(400).json(result);
+      }
+      
+      res.status(201).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la création de la réservation:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
+
+  static async updateBorrowStatuses(req, res) {
+    try {
+      const result = await BorrowService.updateBorrowStatuses();
+      
+      if (result.error) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des statuts:', error);
+      res.status(500).json({ error: true, message: "Erreur interne du serveur" });
+    }
+  }
 }
 
 module.exports = BorrowController;

@@ -19,10 +19,6 @@ class CommentController {
 
   static async createComment(req, res) {
     try {
-      console.log('🔍 DEBUG createComment:');
-      console.log('req.user:', req.user);
-      console.log('req.body:', req.body);
-      
       // Vérifier que l'utilisateur est authentifié
       if (!req.user || !req.user.id) {
         console.log('❌ Utilisateur non authentifié');

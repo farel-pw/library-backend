@@ -13,13 +13,27 @@ class CommentService {
 
   static async createComment(commentData) {
     try {
-      console.log('🔍 DEBUG CommentService.createComment:');
-      console.log('commentData reçu:', commentData);
+      // Validation des données
+      if (!commentData.utilisateur_id) {
+        return { error: true, message: "Utilisateur non spécifié" };
+      }
+      
+      if (!commentData.livre_id) {
+        return { error: true, message: "Livre non spécifié" };
+      }
+      
+      if (!commentData.commentaire || commentData.commentaire.trim() === '') {
+        return { error: true, message: "Le commentaire ne peut pas être vide" };
+      }
+      
+      if (commentData.note && (commentData.note < 1 || commentData.note > 5)) {
+        return { error: true, message: "La note doit être entre 1 et 5" };
+      }
       
       const newComment = {
         utilisateur_id: commentData.utilisateur_id,
         livre_id: commentData.livre_id,
-        commentaire: commentData.commentaire,
+        commentaire: commentData.commentaire.trim(),
         note: commentData.note || null,
         date_commentaire: new Date()
       };
@@ -31,7 +45,7 @@ class CommentService {
       return { error: false, message: "Commentaire créé avec succès", id: result.insertId };
     } catch (error) {
       console.error('❌ Erreur lors de la création du commentaire:', error);
-      return { error: true, message: "Error creating comment" };
+      return { error: true, message: "Erreur lors de la création du commentaire" };
     }
   }
 
@@ -73,9 +87,22 @@ class CommentService {
 
   static async createBibliothequeComment(commentData) {
     try {
+      // Validation des données
+      if (!commentData.utilisateur_id) {
+        return { error: true, message: "Utilisateur non spécifié" };
+      }
+      
+      if (!commentData.commentaire || commentData.commentaire.trim() === '') {
+        return { error: true, message: "Le commentaire ne peut pas être vide" };
+      }
+      
+      if (commentData.note && (commentData.note < 1 || commentData.note > 5)) {
+        return { error: true, message: "La note doit être entre 1 et 5" };
+      }
+
       const newComment = {
         utilisateur_id: commentData.utilisateur_id,
-        commentaire: commentData.commentaire,
+        commentaire: commentData.commentaire.trim(),
         note: commentData.note || null,
         date_commentaire: new Date()
       };
@@ -84,7 +111,7 @@ class CommentService {
       return { error: false, message: "Commentaire sur la bibliothèque créé avec succès", id: result.insertId };
     } catch (error) {
       console.error('Erreur lors de la création du commentaire sur la bibliothèque:', error);
-      return { error: true, message: "Error creating bibliotheque comment" };
+      return { error: true, message: "Erreur lors de la création du commentaire sur la bibliothèque" };
     }
   }
 

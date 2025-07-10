@@ -113,8 +113,13 @@ class UserController {
 
   static async updateCurrentUser(req, res) {
     try {
+      console.log('👤 UpdateCurrentUser: req.user =', req.user);
       const userId = req.user.id; // Utilisateur connecté
+      console.log('👤 UpdateCurrentUser: userId =', userId);
+      console.log('👤 UpdateCurrentUser: req.body =', req.body);
+      
       const result = await UserService.updateUser(userId, req.body);
+      console.log('👤 UpdateCurrentUser: result =', result);
       
       if (result.error) {
         return res.status(404).json(result);

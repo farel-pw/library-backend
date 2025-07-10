@@ -169,14 +169,17 @@ class Borrow {
   static async isBookBorrowed(bookId) {
     return new Promise((resolve, reject) => {
       const query = `
-        SELECT COUNT(*) as count 
+        SELECT 
+          COUNT(*) as emprunts_actifs,
+          3 as exemplaires_total,
+          CASE WHEN COUNT(*) >= 3 THEN 1 ELSE 0 END as tous_empruntes
         FROM emprunts 
         WHERE livre_id = ? AND date_retour_effective IS NULL
       `;
       
       connection.query(query, [bookId], (err, rows) => {
         if (err) reject(err);
-        else resolve(rows[0].count > 0);
+        else resolve(rows[0].tous_empruntes === 1);
       });
     });
   }
@@ -224,6 +227,33 @@ class Borrow {
       connection.query(query, [id], (err, rows) => {
         if (err) reject(err);
         else resolve(rows.length > 0 ? rows[0] : null);
+      });
+    });
+  }
+
+  static async getBookAvailability(bookId) {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT 
+          l.id,
+          l.titre,
+          3 as exemplaires_total,
+          COUNT(e.id) as emprunts_actifs,
+          GREATEST(0, 3 - COUNT(e.id)) as exemplaires_disponibles,
+          CASE 
+            WHEN COUNT(e.id) >= 3 THEN 'indisponible'
+            WHEN COUNT(e.id) >= 2 THEN 'peu_disponible'
+            ELSE 'disponible'
+          END as statut_disponibilite
+        FROM livres l
+        LEFT JOIN emprunts e ON l.id = e.livre_id AND e.date_retour_effective IS NULL
+        WHERE l.id = ?
+        GROUP BY l.id
+      `;
+      
+      connection.query(query, [bookId], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows[0] || null);
       });
     });
   }
